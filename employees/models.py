@@ -73,6 +73,11 @@ class Employee(models.Model):
         'Створено в системі',
         auto_now_add=True,
     )
+    employment_type = models.CharField(
+        max_length=20,
+        choices=[('main', 'Основне місце'), ('part_time', 'Сумісництво')],
+        default='main'
+    )
 
     class Meta:
         verbose_name = 'Працівник'

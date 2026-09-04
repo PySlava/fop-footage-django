@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'employees',
     'documents',
     'dps_reports',
+    'timesheet'
 ]
 
 MIDDLEWARE = [
