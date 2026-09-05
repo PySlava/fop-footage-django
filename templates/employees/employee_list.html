@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Реєстр працівників — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Кадровий облік працівників</h1>
+        <p class="text-muted small">Управління персоналом та обліковими картками</p>
+    </div>
+  <a href="{% url 'employees:create' %}" class="btn btn-primary">
+    <i class="bi bi-person-plus me-1"></i>Додати працівника
+  </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ПІБ Працівника</th>
+                        <th>Посада</th>
+                        <th>ІПН</th>
+                        <th>Дата прийняття</th>
+                        <th>Оклад (грн)</th>
+                        <th>Тип зайнятості</th>
+                        <th>ФОП</th>
+                        <th class="text-end pe-3">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td class="fw-bold">
+                            <i class="bi bi-person-circle text-secondary me-2"></i>{{ emp.full_name }}
+                        </td>
+                        <td>{{ emp.position }}</td>
+                        <td><code>{{ emp.tax_id }}</code></td>
+                        <td>{{ emp.hire_date|date:"d.m.Y" }}</td>
+                        <td>{{ emp.salary|floatformat:2 }} грн</td>
+                        <td>
+                            {% if emp.employment_type == 'main' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Основне</span>
+                            {% else %}
+                                <span class="badge bg-info-subtle text-info border border-info-subtle">Сумісництво</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ emp.fop.full_name|default:emp.fop }}</small></td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'employees:employee_actions' emp.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-text me-1"></i>Дії / Накази
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            Записів про працівників поки немає.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

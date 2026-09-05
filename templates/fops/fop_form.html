@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="h3 mb-0">{{ title }}</h1>
+        <p class="text-muted small">Заповніть реєстраційні реквізити ФОП для формування звітності та наказів</p>
+    </div>
+    <a href="{% url 'fops:list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Назад до списку
+    </a>
+</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-4">
+            {% for error in form.non_field_errors %}
+                <p class="mb-0">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Блок 1: Основна інформація -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white fw-bold">
+            1. Основна інформація
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.full_name.label }}</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.tax_id.label }}</label>
+                    {{ form.tax_id }}
+                    {% if form.tax_id.errors %}<div class="text-danger small mt-1">{{ form.tax_id.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.opf_code.label }}</label>
+                    {{ form.opf_code }}
+                    {% if form.opf_code.errors %}<div class="text-danger small mt-1">{{ form.opf_code.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок 2: Адреса прописки -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white fw-bold">
+            2. Адреса реєстрації (прописка)
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold">{{ form.postal_code.label }}</label>
+                    {{ form.postal_code }}
+                    {% if form.postal_code.errors %}<div class="text-danger small mt-1">{{ form.postal_code.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.region.label }}</label>
+                    {{ form.region }}
+                    {% if form.region.errors %}<div class="text-danger small mt-1">{{ form.region.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.district.label }}</label>
+                    {{ form.district }}
+                    {% if form.district.errors %}<div class="text-danger small mt-1">{{ form.district.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">{{ form.city.label }}</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}<div class="text-danger small mt-1">{{ form.city.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">{{ form.katottg.label }}</label>
+                    {{ form.katottg }}
+                    {% if form.katottg.errors %}<div class="text-danger small mt-1">{{ form.katottg.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold">{{ form.street.label }}</label>
+                    {{ form.street }}
+                    {% if form.street.errors %}<div class="text-danger small mt-1">{{ form.street.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.building.label }}</label>
+                    {{ form.building }}
+                    {% if form.building.errors %}<div class="text-danger small mt-1">{{ form.building.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок 3: Економічна діяльність та податки -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-success text-white fw-bold">
+            3. Економічна діяльність та податки
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.main_kved.label }}</label>
+                    {{ form.main_kved }}
+                    {% if form.main_kved.errors %}<div class="text-danger small mt-1">{{ form.main_kved.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.tax_system.label }}</label>
+                    {{ form.tax_system }}
+                    {% if form.tax_system.errors %}<div class="text-danger small mt-1">{{ form.tax_system.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">{{ form.additional_kveds.label }}</label>
+                    {{ form.additional_kveds }}
+                    {% if form.additional_kveds.errors %}<div class="text-danger small mt-1">{{ form.additional_kveds.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Блок 4: ДПС та ПФУ -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-dark text-white fw-bold">
+            4. Органи обліку (ДПС та ПФУ)
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.dps_code.label }}</label>
+                    {{ form.dps_code }}
+                    {% if form.dps_code.errors %}<div class="text-danger small mt-1">{{ form.dps_code.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">{{ form.dps_name.label }}</label>
+                    {{ form.dps_name }}
+                    {% if form.dps_name.errors %}<div class="text-danger small mt-1">{{ form.dps_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">{{ form.pfu_code.label }}</label>
+                    {{ form.pfu_code }}
+                    {% if form.pfu_code.errors %}<div class="text-danger small mt-1">{{ form.pfu_code.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mb-5">
+        <a href="{% url 'fops:list' %}" class="btn btn-light border">Скасувати</a>
+        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+            <i class="bi bi-check-circle me-1"></i> Зберегти ФОП
+        </button>
+    </div>
+</form>
+
+{% endblock %}

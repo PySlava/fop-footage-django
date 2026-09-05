@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Розрахунково-платіжна відомість — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Розрахунково-платіжна відомість</h1>
+        <p class="text-muted small">Нарахування ЗП, утримання податків (ПДФО 18%, ВЗ 5%) та нарахування ЄСВ 22%</p>
+    </div>
+    <form action="{% url 'salary:calculate' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="month" value="{{ selected_month }}">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+        <button type="submit" class="btn btn-success shadow-sm">
+            <i class="bi bi-calculator me-1"></i> Розрахувати ЗП за місяць
+        </button>
+    </form>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Фільтр періоду -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body bg-light rounded">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label class="col-form-label fw-bold"><i class="bi bi-calendar-range me-1"></i>Період:</label>
+            </div>
+            <div class="col-auto">
+                <select name="month" class="form-select">
+                    {% for m_num, m_name in months_list %}
+                        <option value="{{ m_num }}" {% if m_num == selected_month %}selected{% endif %}>
+                            {{ m_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <select name="year" class="form-select">
+                    {% for y in years_list %}
+                        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
+                            {{ y }} рік
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>Показати
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Підсумкові картки -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <div class="small opacity-75">Нараховано (Gross)</div>
+                <div class="h3 mb-0">{{ totals.gross|floatformat:2 }} грн</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-danger text-white">
+            <div class="card-body">
+                <div class="small opacity-75">Податки (ПДФО + ВЗ)</div>
+                <div class="h3 mb-0">{{ totals.pdfo|add:totals.vz|floatformat:2 }} грн</div>
+                <div class="small opacity-75 mt-1">ПДФО: {{ totals.pdfo }} | ВЗ: {{ totals.vz }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body">
+                <div class="small opacity-75">До виплати (Net)</div>
+                <div class="h3 mb-0">{{ totals.net|floatformat:2 }} грн</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-warning text-dark">
+            <div class="card-body">
+                <div class="small opacity-75">ЄСВ 22% (Роботодавець)</div>
+                <div class="h3 mb-0">{{ totals.esv|floatformat:2 }} грн</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Відомість -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Працівник</th>
+                        <th class="text-end">Оклад</th>
+                        <th class="text-center">Години (факт/норма)</th>
+                        <th class="text-end">Gross (Нарах.)</th>
+                        <th class="text-end text-danger">ПДФО (18%)</th>
+                        <th class="text-end text-danger">ВЗ (5%)</th>
+                        <th class="text-end text-success fw-bold">До виплати (Net)</th>
+                        <th class="text-end text-warning">ЄСВ (22%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ts in timesheets %}
+                    <tr>
+                        <td class="fw-bold">
+                            {{ ts.employee.full_name }}
+                            <div class="small text-muted">{{ ts.employee.position }}</div>
+                        </td>
+                        <td class="text-end">{{ ts.employee.salary|floatformat:2 }} грн</td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">
+                                {{ ts.total_hours }} / {{ ts.norm_hours }} год
+                            </span>
+                        </td>
+                        {% if ts.salary_calculation %}
+                            <td class="text-end fw-bold">{{ ts.salary_calculation.gross_salary }} грн</td>
+                            <td class="text-end text-danger">{{ ts.salary_calculation.pdfo }} грн</td>
+                            <td class="text-end text-danger">{{ ts.salary_calculation.vz }} грн</td>
+                            <td class="text-end text-success fw-bold fs-6">{{ ts.salary_calculation.net_salary }} грн</td>
+                            <td class="text-end text-dark">{{ ts.salary_calculation.esv }} грн</td>
+                        {% else %}
+                            <td colspan="5" class="text-center text-muted italic">
+                                Розрахунок ще не проведено
+                            </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            Жодного табеля за цей період не знайдено. Спочатку сформуйте табель.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

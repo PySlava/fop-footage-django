@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Журнал наказів — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Журнал ведення реєстру наказів</h1>
+        <p class="text-muted small">Облік призначень та звільнень працівників</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>№ Наказу</th>
+                        <th>Тип наказу</th>
+                        <th>Працівник</th>
+                        <th>Дата наказу</th>
+                        <th>Дата дії</th>
+                        <th>ФОП</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="fw-bold">№ {{ order.order_num }}</td>
+                        <td>
+                            {% if order.order_type == 'hire' %}
+                                <span class="badge bg-success">Прийняття</span>
+                            {% else %}
+                                <span class="badge bg-danger">Звільнення (за згодою)</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ order.employee.full_name }}</td>
+                        <td>{{ order.order_date|date:"d.m.Y" }}</td>
+                        <td>{{ order.effective_date|date:"d.m.Y" }}</td>
+                        <td>{{ order.employee.fop.full_name|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            Журнал наказів порожній.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

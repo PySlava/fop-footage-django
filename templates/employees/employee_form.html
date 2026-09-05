@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Прийняти працівника — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="d-flex align-items-center mb-4">
+            <a href="{% url 'employees:list' %}" class="btn btn-outline-secondary btn-sm me-3">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+            <h1 class="h3 mb-0">Прийняття працівника на роботу</h1>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-4">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.fop.id_for_label }}" class="form-label fw-bold">
+                                {{ form.fop.label }}
+                            </label>
+                            {{ form.fop }}
+                            {% if form.fop.errors %}
+                                <div class="text-danger small mt-1">{{ form.fop.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label for="{{ form.full_name.id_for_label }}" class="form-label fw-bold">
+                                {{ form.full_name.label }}
+                            </label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.full_name.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.tax_id.id_for_label }}" class="form-label fw-bold">
+                                {{ form.tax_id.label }}
+                            </label>
+                            {{ form.tax_id }}
+                            {% if form.tax_id.errors %}
+                                <div class="text-danger small mt-1">{{ form.tax_id.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.position.id_for_label }}" class="form-label fw-bold">
+                                {{ form.position.label }}
+                            </label>
+                            {{ form.position }}
+                            {% if form.position.errors %}
+                                <div class="text-danger small mt-1">{{ form.position.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.employment_type.id_for_label }}" class="form-label fw-bold">
+                                {{ form.employment_type.label }}
+                            </label>
+                            {{ form.employment_type }}
+                            {% if form.employment_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.employment_type.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.hire_date.id_for_label }}" class="form-label fw-bold">
+                                {{ form.hire_date.label }}
+                            </label>
+                            {{ form.hire_date }}
+                            {% if form.hire_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.hire_date.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.birth_date.id_for_label }}" class="form-label fw-bold">
+                                {{ form.birth_date.label }}
+                            </label>
+                            {{ form.birth_date }}
+                            {% if form.birth_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.birth_date.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.salary.id_for_label }}" class="form-label fw-bold">
+                                {{ form.salary.label }}
+                            </label>
+                            {{ form.salary }}
+                            {% if form.salary.errors %}
+                                <div class="text-danger small mt-1">{{ form.salary.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'employees:list' %}" class="btn btn-light border">Скасувати</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-check me-1"></i> Зберегти працівника
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

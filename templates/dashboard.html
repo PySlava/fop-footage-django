@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель управління — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3">Панель управління</h1>
+        <p class="text-muted">Система кадрового обліку та автоматизації податкової звітності для ФОП</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-primary"><i class="bi bi-briefcase me-2"></i>ФОП</h5>
+                <p class="card-text">Управління профілями суб'єктів господарювання.</p>
+                <a href="{% url 'fops:list' %}" class="btn btn-outline-primary btn-sm">Перейти</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-success"><i class="bi bi-person-badge me-2"></i>Працівники</h5>
+                <p class="card-text">Кадровий облік, прийняття на роботу, посади.</p>
+                <a href="{% url 'employees:list' %}" class="btn btn-outline-success btn-sm">Перейти</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-warning"><i class="bi bi-file-earmark-code me-2"></i>Звітність ДПС</h5>
+                <p class="card-text">Генерація XML-повідомлень та податкових розрахунків.</p>
+                <a href="{% url 'reports:list' %}" class="btn btn-outline-warning btn-sm">Перейти</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
