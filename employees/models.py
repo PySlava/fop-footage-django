@@ -86,3 +86,21 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.position}) - ФОП {self.fop.full_name}"
+
+
+class Order(models.Model):
+    ORDER_TYPES = [
+        ('hire', 'Наказ про прийняття на роботу'),
+        ('dismissal_agreement', 'Наказ про звільнення за згодою сторін'),
+    ]
+
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='orders', verbose_name="Працівник")
+    order_type = models.CharField(max_length=30, choices=ORDER_TYPES, verbose_name="Тип наказу")
+    order_num = models.CharField(max_length=50, verbose_name="Номер наказу")
+    order_date = models.DateField(verbose_name="Дата наказу")
+    effective_date = models.DateField(verbose_name="Дата дії (початку/звільнення)")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Створено")
+
+    def __str__(self):
+        return f"Наказ №{self.order_num} від {self.order_date} ({self.get_order_type_display()})"
+
