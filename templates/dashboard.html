@@ -11,7 +11,7 @@
 </div>
 
 <div class="row g-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title text-primary"><i class="bi bi-briefcase me-2"></i>ФОП</h5>
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title text-success"><i class="bi bi-person-badge me-2"></i>Працівники</h5>
@@ -31,12 +31,23 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title text-warning"><i class="bi bi-file-earmark-code me-2"></i>Звітність ДПС</h5>
                 <p class="card-text">Генерація XML-повідомлень та податкових розрахунків.</p>
                 <a href="{% url 'reports:list' %}" class="btn btn-outline-warning btn-sm">Перейти</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нова картка Аналітики -->
+    <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-info"><i class="bi bi-graph-up-arrow me-2"></i>Аналітика</h5>
+                <p class="card-text">Фінансовий моніторинг ФОП та календар відпусток.</p>
+                <a href="{% url 'dashboard:index' %}" class="btn btn-outline-info btn-sm">Перейти</a>
             </div>
         </div>
     </div>

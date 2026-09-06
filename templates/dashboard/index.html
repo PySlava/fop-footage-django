@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Аналітичний дашборд — ФОП Кадри{% endblock %}
+
+{% block content %}
+<!-- Підключення бібліотек Chart.js та FullCalendar через CDN -->
+<style>
+    /* Компактний вигляд та стилізація кнопок FullCalendar */
+    .fc .fc-toolbar {
+        margin-bottom: 0.5rem !important;
+        gap: 0.25rem;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1rem !important;
+        font-weight: 600;
+        color: #333;
+    }
+    .fc .fc-button {
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        border-radius: 4px !important;
+        background-color: #f8f9fa !important;
+        color: #495057 !important;
+        border: 1px solid #ced4da !important;
+        box-shadow: none !important;
+        text-transform: capitalize;
+    }
+    .fc .fc-button:hover {
+        background-color: #e9ecef !important;
+        border-color: #adb5bd !important;
+        color: #212529 !important;
+    }
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):active {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #fff !important;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Аналітичний дашборд</h1>
+        <p class="text-muted small mb-0">Фінансовий моніторинг ФОП та календар відпусток на {{ current_year }} рік</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Фінансовий моніторинг (Графік) -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white fw-bold py-3">
+                <i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Витрати на ФОП та податкове навантаження (грн)
+            </div>
+            <div class="card-body">
+                <canvas id="financialChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Календар відпусток -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-calendar-week-fill text-primary me-2"></i>Графік відпусток</span>
+            </div>
+            <div class="card-body p-2">
+                <div id="vacationCalendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. ІНІЦІАЛІЗАЦІЯ ГРАФІКА ФІНАНСІВ (Chart.js) ---
+        const ctx = document.getElementById('financialChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ months_labels_json|safe }},
+                datasets: [
+                    {
+                        label: 'Нараховано ЗП (Gross)',
+                        data: {{ fop_series_json|safe }},
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Податки (ПДФО 18% + ВЗ 5%)',
+                        data: {{ taxes_series_json|safe }},
+                        backgroundColor: '#dc3545',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'ЄСВ 22% (Роботодавець)',
+                        data: {{ esv_series_json|safe }},
+                        backgroundColor: '#ffc107',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw.toLocaleString('uk-UA') + ' грн';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return value.toLocaleString('uk-UA') + ' ₴'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- 2. ІНІЦІАЛІЗАЦІЯ КАЛЕНДАРЯ ВІДПУСТОК (FullCalendar) ---
+        const calendarEl = document.getElementById('vacationCalendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'uk',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,listMonth'
+            },
+            buttonText: {
+                today: 'Сьогодні',
+                month: 'Місяць',
+                list: 'Список'
+            },
+            events: {{ vacation_events_json|safe }},
+            height: 420
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

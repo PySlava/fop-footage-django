@@ -27,4 +27,5 @@ urlpatterns = [
     path('timesheet/', include('timesheet.urls')),
     path('salary/', include('salary.urls')),
     path('reports/', include('reports.urls')),
+    path('dashboard/', include('dashboard.urls')),
 ]
