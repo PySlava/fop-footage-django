@@ -40,6 +40,7 @@ def employee_actions_view(request, pk):
     if request.method == 'POST':
         action_type = request.POST.get('action_type')
         order_num = request.POST.get('order_num', '1-К')
+        settlement = request.POST.get('settlement', 'м. Київ')  # <--- Отримуємо населений пункт
         order_date_str = request.POST.get('order_date')
         target_date_str = request.POST.get('target_date')
 
@@ -47,7 +48,6 @@ def employee_actions_view(request, pk):
         target_date = datetime.strptime(target_date_str, '%Y-%m-%d').date() if target_date_str else order_date
 
         if action_type == 'hire':
-            # Зберігаємо в журнал
             Order.objects.create(
                 employee=employee,
                 order_type='hire',
@@ -59,7 +59,7 @@ def employee_actions_view(request, pk):
             employee.is_active = True
             employee.save()
 
-            buffer = generate_hiring_order_docx(employee, order_num, order_date, target_date)
+            buffer = generate_hiring_order_docx(employee, order_num, order_date, target_date, settlement)
             filename = f"Nakaz_Pryynyattya_{employee.full_name.replace(' ', '_')}.docx"
             response = HttpResponse(
                 buffer.getvalue(),
@@ -80,7 +80,7 @@ def employee_actions_view(request, pk):
             employee.is_active = False
             employee.save()
 
-            buffer = generate_dismissal_order_docx(employee, order_num, order_date, target_date)
+            buffer = generate_dismissal_order_docx(employee, order_num, order_date, target_date, settlement)
             filename = f"Nakaz_Zvilnennya_{employee.full_name.replace(' ', '_')}.docx"
             response = HttpResponse(
                 buffer.getvalue(),
@@ -90,7 +90,6 @@ def employee_actions_view(request, pk):
             return response
 
     return render(request, 'employees/employee_actions.html', {'employee': employee})
-
 
 def orders_list_view(request):
     """Журнал ведення реєстру наказів"""
