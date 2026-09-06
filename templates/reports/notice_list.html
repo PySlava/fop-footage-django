@@ -5,14 +5,15 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="h3 mb-0">Повідомлення про прийняття працівника</h1>
-        <p class="text-muted small">Формування та завантаження повідомлень у форматі Word (.docx) або XML (F3001003)</p>
+        <h1 class="h3 mb-0">Повідомлення та кадрові документи</h1>
+        <p class="text-muted small">Формування та завантаження наказів, договорів та звітів ДПС</p>
     </div>
 </div>
 
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <!-- Додано min-height та overflow: visible -->
+        <div class="table-responsive" style="min-height: 320px;">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
@@ -27,26 +28,40 @@
                     {% for emp in employees %}
                     <tr>
                         <td class="fw-bold">{{ emp.full_name }}</td>
-                        <td><code>{{ emp.tax_id }}</code></td>
-                        <td>{{ emp.hire_date }}</td>
+                        <td><code>{{ emp.tax_id|default:"—" }}</code></td>
+                        <td>{{ emp.hire_date|date:"d.m.Y" }}</td>
                         <td>{{ emp.fop.full_name|default:emp.fop }}</td>
                         <td class="text-end pe-3">
-                        <a href="{% url 'reports:download_employment_notice' emp.id %}" class="btn btn-sm btn-outline-primary me-1">
-                            <i class="bi bi-file-earmark-word me-1"></i>Повідомлення (.docx)
-                        </a>
-                        <a href="{% url 'reports:download_labor_contract' emp.id %}" class="btn btn-sm btn-outline-secondary me-1">
-                            <i class="bi bi-file-text me-1"></i>Договір (.docx)
-                        </a>
-                        <a href="{% url 'reports:dps_notification_xml' emp.id %}" class="btn btn-sm btn-outline-success">
-                            <i class="bi bi-filetype-xml me-1"></i>XML (F3001003)
-                        </a>
+                            <!-- Dropdown з атрибутом fixed-стратегії -->
+                            <div class="btn-group me-1">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        data-bs-popper-config='{"strategy": "fixed"}'
+                                        aria-expanded="false">
+                                    <i class="bi bi-file-earmark-word me-1"></i>Накази та Договір
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item" href="{% url 'reports:download_employment_notice' emp.id %}"><i class="bi bi-file-earmark-text me-2"></i>Повідомлення про прийняття (.docx)</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'reports:download_labor_contract' emp.id %}"><i class="bi bi-journal-check me-2"></i>Трудовий договір (.docx)</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'reports:download_order' emp.id 'leave' %}"><i class="bi bi-calendar-event me-2"></i>Наказ про відпустку</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'reports:download_order' emp.id 'trip' %}"><i class="bi bi-briefcase me-2"></i>Наказ про відрядження</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'reports:download_order' emp.id 'salary' %}"><i class="bi bi-cash-stack me-2"></i>Наказ про зміну окладу</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'reports:download_order' emp.id 'aid' %}"><i class="bi bi-heart me-2"></i>Наказ про мат. допомогу</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- Кнопка XML ДПС -->
+                            <a href="{% url 'reports:dps_notification_xml' emp.id %}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-filetype-xml me-1"></i>XML (F3001003)
+                            </a>
                         </td>
-                    </td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="5" class="text-center py-4 text-muted">
-                            Працівників для формування документа не знайдено.
+                            Працівників для формування документів не знайдено.
                         </td>
                     </tr>
                     {% endfor %}

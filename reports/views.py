@@ -90,3 +90,36 @@ def download_labor_contract_view(request, employee_id):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
+
+from .services.orders_docx import (
+    generate_leave_order_docx,
+    generate_business_trip_order_docx,
+    generate_salary_change_order_docx,
+    generate_financial_aid_order_docx,
+)
+
+def download_order_docx_view(request, employee_id, order_type):
+    """Генерація та вивантаження кадрових наказів за типом"""
+    employee = get_object_or_404(Employee, pk=employee_id)
+
+    order_generators = {
+        'leave': (generate_leave_order_docx, "Nakaz_Vidpustka"),
+        'trip': (generate_business_trip_order_docx, "Nakaz_Vidryadzhennya"),
+        'salary': (generate_salary_change_order_docx, "Nakaz_Oklad"),
+        'aid': (generate_financial_aid_order_docx, "Nakaz_Dopomoha"),
+    }
+
+    if order_type not in order_generators:
+        return HttpResponse("Невідомий тип наказу", status=400)
+
+    generator_func, prefix = order_generators[order_type]
+    buffer = generator_func(employee)
+
+    filename = f"{prefix}_{employee.full_name.replace(' ', '_')}.docx"
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
