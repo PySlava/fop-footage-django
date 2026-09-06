@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.shortcuts import render
 from employees.models import Employee
+from .services.excel_export import generate_timesheet_p5_xlsx
 from .models import Timesheet, TimesheetDay
 
 def timesheet_list_view(request):
@@ -55,3 +56,21 @@ def timesheet_list_view(request):
         'months_list': months_list,
         'years_list': range(now.year - 2, now.year + 2),
     })
+
+def download_timesheet_xlsx_view(request):
+    """View для завантаження Табеля П-5 у форматі .xlsx з модуля timesheet"""
+    now = datetime.now()
+    year = int(request.GET.get('year', now.year))
+    month = int(request.GET.get('month', now.month))
+
+    employees = Employee.objects.all().order_by('full_name')
+    buffer = generate_timesheet_p5_xlsx(year=year, month=month, employees=employees)
+
+    filename = f"Tabel_P5_{month:02d}_{year}.xlsx"
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Повідомлення ДПС — ФОП Кадри{% endblock %}
+{% block title %}Звітність та ДПС — ФОП Кадри{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -12,7 +12,6 @@
 
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-0">
-        <!-- Додано min-height та overflow: visible -->
         <div class="table-responsive" style="min-height: 320px;">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -32,7 +31,6 @@
                         <td>{{ emp.hire_date|date:"d.m.Y" }}</td>
                         <td>{{ emp.fop.full_name|default:emp.fop }}</td>
                         <td class="text-end pe-3">
-                            <!-- Dropdown з атрибутом fixed-стратегії -->
                             <div class="btn-group me-1">
                                 <button type="button"
                                         class="btn btn-sm btn-outline-primary dropdown-toggle"
@@ -52,7 +50,6 @@
                                 </ul>
                             </div>
 
-                            <!-- Кнопка XML ДПС -->
                             <a href="{% url 'reports:dps_notification_xml' emp.id %}" class="btn btn-sm btn-outline-success">
                                 <i class="bi bi-filetype-xml me-1"></i>XML (F3001003)
                             </a>

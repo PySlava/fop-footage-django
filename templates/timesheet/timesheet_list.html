@@ -8,6 +8,9 @@
         <h1 class="h3 mb-0">Табель обліку робочого часу (Форма П-5)</h1>
         <p class="text-muted small">Норми, відпрацьовані години та типи днів для розрахунку ЗП</p>
     </div>
+    <a href="{% url 'timesheet:timesheet_xlsx' %}?month={{ selected_month }}&year={{ selected_year }}" class="btn btn-success shadow-sm">
+        <i class="bi bi-file-earmark-excel me-1"></i>Експорт П-5 (.xlsx)
+    </a>
 </div>
 
 <!-- Фільтр періоду -->
