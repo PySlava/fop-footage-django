@@ -8,14 +8,17 @@ class Employee(models.Model):
         ('150', '150% НСП (одинова мати / діти-інваліди)'),
         ('200', '200% НСП')
     ]
-
     WORK_SCHEDULE_CHOICES = [
         ('full_40', "П'ятиденка (40год/тиж, 8 год/день"),
         ('part_20', 'Неповний робочий день (20 год/тиж, 4 год/день)'),
         ('part_10', 'Неповний робочий день (10 год/тиж, 2 год/день)'),
         ('shift', 'Змінний графік'),
     ]
-
+    INSURED_CATEGORY_CHOICES = [
+        ('1', '1 - Наймані працівники з трудовою книжкою (основне місце)'),
+        ('2', '2 - Наймані працівники без трудовою книжки (сумісництво)'),
+        ('3', '3 - Гіг-фахівці (за гіг-контрактом)'),
+    ]
     fop = models.ForeignKey(
         Fops,
         on_delete=models.CASCADE,
@@ -77,6 +80,23 @@ class Employee(models.Model):
         max_length=20,
         choices=[('main', 'Основне місце'), ('part_time', 'Сумісництво')],
         default='main'
+    )
+    passport_info = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Паспортні дані",
+        help_text="Серія та номер або номер ID-картки"
+    )
+    insured_category = models.CharField(
+        max_length=2,
+        choices=INSURED_CATEGORY_CHOICES,
+        default='1',
+        verbose_name="Категорія застрахованої особи"
+    )
+    is_ukrainian_citizen = models.BooleanField(
+        default=True,
+        verbose_name="Громадянин України (1 - Так, 0 - Ні)"
     )
 
     class Meta:

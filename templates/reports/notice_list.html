@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="h3 mb-0">Повідомлення про прийняття працівника</h1>
-        <p class="text-muted small">Формування та завантаження повідомлень у форматі Word (.docx)</p>
+        <p class="text-muted small">Формування та завантаження повідомлень у форматі Word (.docx) або XML (F3001003)</p>
     </div>
 </div>
 
@@ -31,10 +31,13 @@
                         <td>{{ emp.hire_date }}</td>
                         <td>{{ emp.fop.full_name|default:emp.fop }}</td>
                         <td class="text-end pe-3">
-                            <a href="{% url 'reports:download_employment_notice' emp.id %}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-file-earmark-word me-1"></i>Скачати Word (.docx)
-                            </a>
-                        </td>
+                        <a href="{% url 'reports:download_employment_notice' emp.id %}" class="btn btn-sm btn-outline-primary me-1">
+                            <i class="bi bi-file-earmark-word me-1"></i>Word (.docx)
+                        </a>
+                        <a href="{% url 'reports:dps_notification_xml' emp.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-filetype-xml me-1"></i>XML (F3001003)
+                        </a>
+                    </td>
                     </tr>
                     {% empty %}
                     <tr>
