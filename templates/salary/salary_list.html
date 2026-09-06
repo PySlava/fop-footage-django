@@ -6,16 +6,21 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h1 class="h3 mb-0">Розрахунково-платіжна відомість</h1>
-        <p class="text-muted small">Нарахування ЗП, утримання податків (ПДФО 18%, ВЗ 5%) та нарахування ЄСВ 22%</p>
+        <p class="text-muted small mb-0">Нарахування ЗП, утримання податків (ПДФО 18%, ВЗ 5%) та нарахування ЄСВ 22%</p>
     </div>
-    <form action="{% url 'salary:calculate' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="month" value="{{ selected_month }}">
-        <input type="hidden" name="year" value="{{ selected_year }}">
-        <button type="submit" class="btn btn-success shadow-sm">
-            <i class="bi bi-calculator me-1"></i> Розрахувати ЗП за місяць
-        </button>
-    </form>
+    <div class="d-flex gap-2">
+        <a href="{% url 'salary:calculator' %}" class="btn btn-outline-primary shadow-sm">
+            <i class="bi bi-calculator-fill me-1"></i>Калькулятор відпускних/лікарняних
+        </a>
+        <form action="{% url 'salary:calculate' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="month" value="{{ selected_month }}">
+            <input type="hidden" name="year" value="{{ selected_year }}">
+            <button type="submit" class="btn btn-success shadow-sm">
+                <i class="bi bi-calculator me-1"></i> Розрахувати ЗП за місяць
+            </button>
+        </form>
+    </div>
 </div>
 
 {% if messages %}
@@ -113,6 +118,7 @@
                         <th class="text-end text-danger">ВЗ (5%)</th>
                         <th class="text-end text-success fw-bold">До виплати (Net)</th>
                         <th class="text-end text-warning">ЄСВ (22%)</th>
+                        <th class="text-center">Дії</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -134,15 +140,23 @@
                             <td class="text-end text-danger">{{ ts.salary_calculation.vz }} грн</td>
                             <td class="text-end text-success fw-bold fs-6">{{ ts.salary_calculation.net_salary }} грн</td>
                             <td class="text-end text-dark">{{ ts.salary_calculation.esv }} грн</td>
+                            <td class="text-center">
+                                <a href="{% url 'salary:payslip_pdf' ts.salary_calculation.id %}"
+                                   class="btn btn-sm btn-outline-danger shadow-sm"
+                                   title="Завантажити розрахунковий листок PDF">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                                </a>
+                            </td>
                         {% else %}
                             <td colspan="5" class="text-center text-muted italic">
                                 Розрахунок ще не проведено
                             </td>
+                            <td class="text-center text-muted">—</td>
                         {% endif %}
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center py-4 text-muted">
+                        <td colspan="9" class="text-center py-4 text-muted">
                             Жодного табеля за цей період не знайдено. Спочатку сформуйте табель.
                         </td>
                     </tr>

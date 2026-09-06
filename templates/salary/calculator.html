@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Калькулятор відпускних та лікарняних — ФОП Кадри{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'salary:list' %}" class="btn btn-outline-secondary btn-sm mb-2">
+        <i class="bi bi-arrow-left me-1"></i>Назад до відомості
+    </a>
+    <h1 class="h3 mb-0">Калькулятор відпускних та лікарняних</h1>
+    <p class="text-muted small">Розрахунок середньоденної заробітної плати за останні 12 місяців</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Працівник</label>
+                        <select name="employee" class="form-select" required>
+                            <option value="">-- Оберіть працівника --</option>
+                            {% for emp in employees %}
+                                <option value="{{ emp.id }}" {% if selected_employee and selected_employee.id == emp.id %}selected{% endif %}>
+                                    {{ emp.full_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Тип розрахунку</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="calc_type" id="type_vacation" value="vacation" {% if calc_type == 'vacation' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="type_vacation">Відпускні</label>
+
+                            <input type="radio" class="btn-check" name="calc_type" id="type_sick" value="sick" {% if calc_type == 'sick' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="type_sick">Лікарняні</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Кількість днів</label>
+                        <input type="number" name="days" class="form-value form-control" value="{{ days }}" min="1" max="365" required>
+                    </div>
+
+                    <div class="mb-3" id="experience_field" {% if calc_type == 'vacation' %}style="display:none;"{% endif %}>
+                        <label class="form-label fw-bold">Страховий стаж (років)</label>
+                        <input type="number" name="exp_years" class="form-control" value="{{ exp_years }}" min="0" max="60">
+                        <div class="form-text">До 3 р. — 50%, 3-5 р. — 60%, 5-8 р. — 70%, понад 8 р. — 100%</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-calculator me-1"></i>Розрахувати
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        {% if result %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light fw-bold">
+                Результат розрахунку: {{ selected_employee.full_name }}
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info py-2 small mb-3">
+                    <strong>Середньоденна ЗП:</strong> {{ result.avg_info.avg_daily_wage }} грн
+                    <span class="text-muted">
+                        (за 12 міс. нараховано {{ result.avg_info.total_gross }} грн за {{ result.avg_info.total_days }} дн.)
+                    </span>
+                </div>
+
+                <table class="table table-sm align-middle">
+                    <tr>
+                        <th>Показник</th>
+                        <th class="text-end">Значення</th>
+                    </tr>
+                    <tr>
+                        <td>Днів для оплати:</td>
+                        <td class="text-end fw-bold">{{ result.calc_data.days }} дн.</td>
+                    </tr>
+                    {% if result.calc_type == 'sick' %}
+                    <tr>
+                        <td>Відсоток оплати стажу:</td>
+                        <td class="text-end fw-bold">{{ result.calc_data.percent }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Оплата роботодавцем (перші 5 днів):</td>
+                        <td class="text-end text-primary">{{ result.calc_data.employer_amount }} грн</td>
+                    </tr>
+                    <tr>
+                        <td>Оплата ПФУ (з 6-го дня):</td>
+                        <td class="text-end text-primary">{{ result.calc_data.pension_fund_amount }} грн</td>
+                    </tr>
+                    {% endif %}
+                    <tr class="table-light fw-bold">
+                        <td>Всього нараховано (Gross):</td>
+                        <td class="text-end fs-6">{{ result.calc_data.total_gross }} грн</td>
+                    </tr>
+                    <tr>
+                        <td class="text-danger">ПДФО (18%):</td>
+                        <td class="text-end text-danger">-{{ result.calc_data.pdfo }} грн</td>
+                    </tr>
+                    <tr>
+                        <td class="text-danger">Військовий збір (5%):</td>
+                        <td class="text-end text-danger">-{{ result.calc_data.vz }} грн</td>
+                    </tr>
+                    <tr class="table-success fw-bold">
+                        <td class="text-success">На руки (Net):</td>
+                        <td class="text-end text-success fs-5">{{ result.calc_data.net }} грн</td>
+                    </tr>
+                    <tr>
+                        <td class="text-warning">ЄСВ 22% (нарахування роботодавця):</td>
+                        <td class="text-end text-dark">{{ result.calc_data.esv }} грн</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm h-100 d-flex align-items-center justify-content-center text-center p-5 text-muted">
+            <i class="bi bi-calculator display-4 mb-2 opacity-50"></i>
+            Оберіть працівника та вкажіть параметри для розрахунку
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('input[name="calc_type"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const expField = document.getElementById('experience_field');
+            if (e.target.value === 'sick') {
+                expField.style.display = 'block';
+            } else {
+                expField.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

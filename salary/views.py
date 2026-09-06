@@ -1,29 +1,35 @@
 from datetime import datetime
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import HttpResponse
 from timesheet.models import Timesheet
+from employees.models import Employee
 from .models import SalaryCalculation
-from .services import calculate_salary_for_timesheet
+from .services import (
+    calculate_salary_for_timesheet,
+    get_average_daily_wage,
+    calculate_vacation_pay,
+    calculate_sick_pay
+)
+from .services_pdf import generate_payslip_pdf
+
 
 def salary_list_view(request):
     now = datetime.now()
     selected_month = int(request.GET.get('month', now.month))
     selected_year = int(request.GET.get('year', now.year))
 
-    # Отримуємо всі табелі за період разом із прив'язаними розрахунками ЗП
     timesheets = Timesheet.objects.filter(
         month=selected_month,
         year=selected_year
     ).select_related('employee', 'salary_calculation')
 
-    # Формуємо список існуючих розрахунків для підсумків
     salaries = [
         ts.salary_calculation
         for ts in timesheets
         if hasattr(ts, 'salary_calculation') and ts.salary_calculation
     ]
 
-    # Обчислюємо загальні підсумки відомості
     totals = {
         'gross': sum(s.gross_salary for s in salaries),
         'pdfo': sum(s.pdfo for s in salaries),
@@ -47,8 +53,8 @@ def salary_list_view(request):
         'years_list': range(now.year - 2, now.year + 2),
     })
 
+
 def calculate_salaries_view(request):
-    """Масовий розрахунок зарплати за вибраний місяць"""
     if request.method == 'POST':
         selected_month = int(request.POST.get('month'))
         selected_year = int(request.POST.get('year'))
@@ -64,7 +70,6 @@ def calculate_salaries_view(request):
 
         count = 0
         for ts in timesheets:
-            # Оклад береться безпосередньо з моделі Employee
             calculate_salary_for_timesheet(ts, ts.employee.salary)
             count += 1
 
@@ -75,3 +80,53 @@ def calculate_salaries_view(request):
         return redirect(f"/salary/?month={selected_month}&year={selected_year}")
 
     return redirect('salary:list')
+
+
+def download_payslip_pdf_view(request, pk):
+    """Завантаження розрахункового листка у PDF"""
+    salary_calc = get_object_or_404(SalaryCalculation, pk=pk)
+    pdf_buffer = generate_payslip_pdf(salary_calc)
+
+    employee_name = salary_calc.timesheet.employee.full_name.replace(' ', '_')
+    filename = f"Payslip_{employee_name}_{salary_calc.timesheet.month:02d}_{salary_calc.timesheet.year}.pdf"
+
+    response = HttpResponse(pdf_buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+def vacation_sick_calculator_view(request):
+    """Інтегрований калькулятор відпускних та лікарняних"""
+    employees = Employee.objects.all()
+    now = datetime.now()
+
+    result = None
+    selected_employee = None
+    calc_type = request.GET.get('calc_type', 'vacation')
+    days = int(request.GET.get('days', 14))
+    exp_years = int(request.GET.get('exp_years', 8))
+    emp_id = request.GET.get('employee')
+
+    if emp_id:
+        selected_employee = get_object_or_404(Employee, pk=emp_id)
+        avg_info = get_average_daily_wage(selected_employee, now.month, now.year)
+
+        if calc_type == 'vacation':
+            calc_data = calculate_vacation_pay(avg_info['avg_daily_wage'], days)
+        else:
+            calc_data = calculate_sick_pay(avg_info['avg_daily_wage'], days, exp_years)
+
+        result = {
+            'avg_info': avg_info,
+            'calc_data': calc_data,
+            'calc_type': calc_type,
+        }
+
+    return render(request, 'salary/calculator.html', {
+        'employees': employees,
+        'selected_employee': selected_employee,
+        'result': result,
+        'calc_type': calc_type,
+        'days': days,
+        'exp_years': exp_years,
+    })
