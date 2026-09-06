@@ -2,6 +2,7 @@ from datetime import datetime
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from employees.models import Employee
+from .services.labor_contract import generate_labor_contract_docx
 from .services.unified_report import generate_basic_unified_tax_report_xml
 from .services.dps_xml_generator import generate_dps_f3001003_xml
 from .services.employment_notice import generate_employment_notice_docx
@@ -74,5 +75,18 @@ def download_unified_report_xml(request):
     xml_data = generate_basic_unified_tax_report_xml(company_info, salary_records)
     response = HttpResponse(xml_data, content_type='application/xml')
     response['Content-Disposition'] = 'attachment; filename="F0500109_Unified.xml"'
+    return response
+
+def download_labor_contract_view(request, employee_id):
+    """View для завантаження Трудового договору (.docx)"""
+    employee = get_object_or_404(Employee, pk=employee_id)
+    buffer = generate_labor_contract_docx(employee)
+
+    filename = f"Trudovyi_Dohovir_{employee.full_name.replace(' ', '_')}.docx"
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 

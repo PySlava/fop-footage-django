@@ -8,4 +8,5 @@ urlpatterns = [
     path('notice/', views.notice_list_view, name='notice_list'),
     path('<int:employee_id>/download-docx/', views.download_employment_notice_view, name='download_employment_notice'),
     path('dps-notification/<int:employee_id>/xml/', views.download_dps_notification_xml, name='dps_notification_xml'),
+    path('<int:employee_id>/download-contract/', views.download_labor_contract_view, name='download_labor_contract'),
 ]
